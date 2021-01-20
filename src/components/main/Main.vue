@@ -8,8 +8,6 @@
             <el-col :span="12">
               <el-menu
                 class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose"
                 :router="true"
                 :collapse="isCollapse">
                 <!--Log的存放地址(开始)-->
@@ -33,7 +31,7 @@
                     <span>权限管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="2-1">修改用户权限</el-menu-item>
+                    <el-menu-item index="2-1" route="/Main/Permissions">修改用户权限</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="3">
@@ -176,8 +174,8 @@
                 <template slot="title">
                   admin
                 </template>
-                <el-menu-item index="2-1">选项1</el-menu-item>
-                <el-menu-item index="2-2">选项2</el-menu-item>
+                <el-menu-item index="2-1">个人信息</el-menu-item>
+                <el-menu-item index="2-2">退出登录</el-menu-item>
               </el-submenu>
             </el-menu>
           </div>
@@ -203,12 +201,6 @@ export default {
   },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
     reverse(){

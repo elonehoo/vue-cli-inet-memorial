@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Login from "../components/login/Login";
 import Main from "../components/main/Main";
 import User from "../components/user/User";
+import Permissions from "../components/Permissions/Permissions";
 Vue.use(Router)
 
 export default new Router({
@@ -11,7 +12,8 @@ export default new Router({
     , { path: '/Login', name: 'Login', component: Login}
     , { path: '/Main', name: 'Main', component: Main,
         children:[
-          {path:"User",component:User}
+           {path:"User",component:User}
+          ,{path: "Permissions",component: Permissions}
         ]
       }
   ]
