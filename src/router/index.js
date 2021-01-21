@@ -4,6 +4,7 @@ import Login from "../components/login/Login";
 import Main from "../components/main/Main";
 import User from "../components/user/User";
 import Permissions from "../components/permissions/Permissions";
+import Type from "../components/type/Type";
 Vue.use(Router)
 
 export default new Router({
@@ -14,6 +15,7 @@ export default new Router({
         children:[
            {path:"User",component:User}
           ,{path: "Permissions",component: Permissions}
+          ,{path: "Type",component: Type}
         ]
       }
   ]

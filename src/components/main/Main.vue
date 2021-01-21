@@ -49,7 +49,7 @@
                     <span>类别管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="4-1">类别目录</el-menu-item>
+                    <el-menu-item index="4-1" route="/Main/Type">类别目录</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="5">
