@@ -1,12 +1,12 @@
 <template>
-  <div>
-    permissions
-  </div>
+    <div>
+      Type
+    </div>
 </template>
 
 <script>
 export default {
-  name: "permissions"
+  name: "Type"
 }
 </script>
 

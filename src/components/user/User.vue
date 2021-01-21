@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-row :gutter="20">
+    <el-row class="rowTop">
       <el-col :span="14" :offset="5">
-        <div class="grid-content bg-purple">
+        <div class="grid-content bg-purple rowTop">
           <el-table
             :data="tableData"
             style="width: 100%">
@@ -72,7 +72,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="14" :offset="5">
-        <div class="grid-content bg-purple" style="text-align: center">
+        <div class="grid-content bg-purple primary" style="text-align: center">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -271,5 +271,7 @@ export default {
 </script>
 
 <style scoped>
-
+.rowTop{
+  margin-top: 10px;
+}
 </style>

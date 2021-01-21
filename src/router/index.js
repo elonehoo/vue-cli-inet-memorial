@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Login from "../components/login/Login";
 import Main from "../components/main/Main";
 import User from "../components/user/User";
-import Permissions from "../components/Permissions/Permissions";
+import Permissions from "../components/permissions/Permissions";
 Vue.use(Router)
 
 export default new Router({
