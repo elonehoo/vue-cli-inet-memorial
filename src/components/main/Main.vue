@@ -55,21 +55,11 @@
                 <el-submenu index="5">
                   <template slot="title">
                     <i class="el-icon-medal"></i>
-                    <span>缅怀英烈管理</span>
+                    <span>文章管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="5-1">增加缅怀英烈</el-menu-item>
-                    <el-menu-item index="5-2">查看缅怀英烈</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
-                <el-submenu index="6">
-                  <template slot="title">
-                    <i class="el-icon-map-location"></i>
-                    <span>网上祭奠管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="6-1">增加网上祭奠</el-menu-item>
-                    <el-menu-item index="6-2">查看网上祭奠</el-menu-item>
+                    <el-menu-item index="5-1" route="/Main/ArticleAppend">增加文章</el-menu-item>
+                    <el-menu-item index="5-2" route="/Main/ArticleView">查看文章</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="7">
@@ -82,16 +72,6 @@
                     <el-menu-item index="7-2">查看红色讲堂</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
-                <el-submenu index="8">
-                  <template slot="title">
-                    <i class="el-icon-postcard"></i>
-                    <span>烈士名单管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="8-1">增加烈士名单</el-menu-item>
-                    <el-menu-item index="8-2">查看烈士名单</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
                 <el-submenu index="9">
                   <template slot="title">
                     <i class="el-icon-monitor"></i>
@@ -100,46 +80,6 @@
                   <el-menu-item-group>
                     <el-menu-item index="9-1">增加视频特辑</el-menu-item>
                     <el-menu-item index="9-2">查看视频特辑</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
-                <el-submenu index="10">
-                  <template slot="title">
-                    <i class="el-icon-tickets"></i>
-                    <span>揭秘历史管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="10-1">增加揭秘历史</el-menu-item>
-                    <el-menu-item index="10-2">查看揭秘历史</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
-                <el-submenu index="11">
-                  <template slot="title">
-                    <i class="el-icon-printer"></i>
-                    <span>揭秘历史管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="11-1">增加揭秘历史</el-menu-item>
-                    <el-menu-item index="11-2">查看揭秘历史</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
-                <el-submenu index="12">
-                  <template slot="title">
-                    <i class="el-icon-collection"></i>
-                    <span>国家记忆管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="12-1">增加国家记忆</el-menu-item>
-                    <el-menu-item index="12-2">查看国家记忆</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
-                <el-submenu index="13">
-                  <template slot="title">
-                    <i class="el-icon-trophy"></i>
-                    <span>致敬老兵管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="13-1">增加致敬老兵</el-menu-item>
-                    <el-menu-item index="13-2">查看致敬老兵</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="14">
@@ -173,8 +113,8 @@
                 <template slot="title">
                   admin
                 </template>
-                <el-menu-item index="2-1">个人信息</el-menu-item>
-                <el-menu-item index="2-2">退出登录</el-menu-item>
+                <el-menu-item index="2-1" v-on:click="information()">个人信息</el-menu-item>
+                <el-menu-item index="2-2" v-on:click="logOut()">退出登录</el-menu-item>
               </el-submenu>
             </el-menu>
           </div>
@@ -204,6 +144,22 @@ export default {
     },
     reverse(){
       this.isCollapse = !this.isCollapse;
+    },
+    /**
+     * 个人信息
+     * @author HCY
+     * @since 2021/1/21 下午3:25
+    */
+    information(){
+
+    },
+    /**
+     * 退出操作
+     * @author HCY
+     * @since 2021/1/21 下午3:26
+    */
+    logOut(){
+
     }
   }
 }

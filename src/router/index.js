@@ -5,6 +5,8 @@ import Main from "../components/main/Main";
 import User from "../components/user/User";
 import Permissions from "../components/permissions/Permissions";
 import Type from "../components/type/Type";
+import ArticleView from "../components/article/ArticleView";
+import ArticleAppend from "../components/article/ArticleAppend";
 Vue.use(Router)
 
 export default new Router({
@@ -16,6 +18,8 @@ export default new Router({
            {path:"User",component:User}
           ,{path: "Permissions",component: Permissions}
           ,{path: "Type",component: Type}
+          ,{path: "ArticleView",component: ArticleView}
+          ,{path: "ArticleAppend",component: ArticleAppend}
         ]
       }
   ]
