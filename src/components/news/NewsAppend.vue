@@ -30,15 +30,11 @@
           <el-row :gutter="20">
             <el-col :span="18" :offset="3">
               <div class="grid-content bg-purple">
-                选择类别：
-                <el-select v-model="typeId" clearable placeholder="请选择">
-                  <el-option
-                    v-for="item in selectData"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
+                <el-input
+                  placeholder="请输入新闻地点"
+                  v-model="site"
+                  clearable>
+                </el-input>
               </div>
             </el-col>
           </el-row>
@@ -84,13 +80,11 @@
   </div>
 </template>
 
-
-
 <script>
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 export default {
-  name: "ArticleAppend",
+  name: "NewsAppend",
   data(){
     return{
       toolbars: {
@@ -128,7 +122,7 @@ export default {
       title:'',
       content:'',
       dialog:false,
-      typeId:'',
+      site:'',
       selectData:[
         {id:'1',name:'致敬老兵',typeName:'文章',total:'5'}
         ,{id:'3',name:'烈士名单',typeName:'文章',total:'7'}
@@ -149,7 +143,7 @@ export default {
      *
      * @author HCY
      * @since 2021/1/22 下午3:53
-    */
+     */
     Clear(){
       this.$confirm('此操作将清空该文章内容和标题, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -174,7 +168,7 @@ export default {
      *
      * @author HCY
      * @since 2021/1/22 下午3:57
-    */
+     */
     Determine(){
       this.dialog = true
     },
@@ -185,7 +179,7 @@ export default {
      * @since 2021/1/22 下午4:19
      * @param pos: 第几张图片
      * @param $file: 图片的具体信息
-    */
+     */
     $imgAdd(pos, $file){
       // 第一步.将图片上传到服务器.
       var formdata = new FormData();
@@ -227,7 +221,7 @@ export default {
      * 图片上传成功的钩子
      * @author HCY
      * @since 2021/1/22 下午6:54
-    */
+     */
     ImagesSuccess(res, file){
 
     },
@@ -235,9 +229,9 @@ export default {
      * 抽屉内的清空按钮
      * @author HCY
      * @since 2021/1/22 下午7:01
-    */
+     */
     OnClear(){
-      this.$confirm('此操作将清空该文章类别和图片, 是否继续?', '提示', {
+      this.$confirm('此操作将清空该新闻的地点和图片, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -247,7 +241,7 @@ export default {
           message: '已经清空成功'
         });
         this.imageUrl = '';
-        this.typeId = '';
+        this.site = '';
       }).catch(() => {
         this.$notify.info({
           title: '消息',
@@ -260,7 +254,7 @@ export default {
      * 抽屉内的发布按钮
      * @author HCY
      * @since 2021/1/22 下午7:02
-    */
+     */
     OnRelease(){
 
     }

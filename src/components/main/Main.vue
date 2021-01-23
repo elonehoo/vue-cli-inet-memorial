@@ -88,8 +88,8 @@
                     <span>新闻管理管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="14-1">增加新闻管理</el-menu-item>
-                    <el-menu-item index="14-2">查看新闻管理</el-menu-item>
+                    <el-menu-item index="14-1" route="/Main/NewsAppend">增加新闻管理</el-menu-item>
+                    <el-menu-item index="14-2" route="/Main/NewsView">查看新闻管理</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
               </el-menu>

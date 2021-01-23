@@ -7,6 +7,8 @@ import Permissions from "../components/permissions/Permissions";
 import Type from "../components/type/Type";
 import ArticleView from "../components/article/ArticleView";
 import ArticleAppend from "../components/article/ArticleAppend";
+import NewsView from "../components/news/NewsView";
+import NewsAppend from "../components/news/NewsAppend";
 Vue.use(Router)
 
 export default new Router({
@@ -20,6 +22,8 @@ export default new Router({
           ,{path: "Type",component: Type}
           ,{path: "ArticleView",component: ArticleView}
           ,{path: "ArticleAppend",component: ArticleAppend}
+          ,{path: "NewsView",component: NewsView}
+          ,{path: "NewsAppend",component: NewsAppend}
         ]
       }
   ]
