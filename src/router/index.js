@@ -9,6 +9,8 @@ import ArticleView from "../components/article/ArticleView";
 import ArticleAppend from "../components/article/ArticleAppend";
 import NewsView from "../components/news/NewsView";
 import NewsAppend from "../components/news/NewsAppend";
+import VideoView from "../components/video/VideoView";
+import Logo from "../components/logo/Logo";
 Vue.use(Router)
 
 export default new Router({
@@ -24,6 +26,8 @@ export default new Router({
           ,{path: "ArticleAppend",component: ArticleAppend}
           ,{path: "NewsView",component: NewsView}
           ,{path: "NewsAppend",component: NewsAppend}
+          ,{path: "VideoView",component: VideoView}
+          ,{path: "Logo",component: Logo}
         ]
       }
   ]

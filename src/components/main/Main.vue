@@ -9,9 +9,10 @@
               <el-menu
                 class="el-menu-vertical-demo"
                 :router="true"
+                :unique-opened="true"
                 :collapse="isCollapse">
                 <!--Log的存放地址(开始)-->
-                <el-menu-item index="2">
+                <el-menu-item index="2" route="/Main/Logo">
                   <i class="el-icon-menu"></i>
                   <span slot="title">LOGO</span>
                 </el-menu-item>
@@ -62,24 +63,13 @@
                     <el-menu-item index="5-2" route="/Main/ArticleView">查看文章</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
-                <el-submenu index="7">
-                  <template slot="title">
-                    <i class="el-icon-service"></i>
-                    <span>红色讲堂管理</span>
-                  </template>
-                  <el-menu-item-group>
-                    <el-menu-item index="7-1">增加红色讲堂</el-menu-item>
-                    <el-menu-item index="7-2">查看红色讲堂</el-menu-item>
-                  </el-menu-item-group>
-                </el-submenu>
                 <el-submenu index="9">
                   <template slot="title">
                     <i class="el-icon-monitor"></i>
-                    <span>视频特辑管理</span>
+                    <span>视频管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="9-1">增加视频特辑</el-menu-item>
-                    <el-menu-item index="9-2">查看视频特辑</el-menu-item>
+                    <el-menu-item index="9-1" route="/Main/VideoView">查看视频</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="14">
