@@ -56,7 +56,6 @@
             <el-col :span="16" :offset="4">
               <div class="grid-content bg-purple">
                 <el-tag effect="plain"> 选择添加的类别 </el-tag>
-
                 <el-select v-model="searchTypeId" clearable placeholder="请选择">
                   <el-option
                     v-for="item in selectData"
@@ -86,8 +85,8 @@
           <el-row :gutter="20" class="top">
             <el-col :span="16" :offset="4">
               <div class="grid-content bg-purple"  style="text-align: right">
-                <el-button type="danger" icon="el-icon-circle-close" plain>取消</el-button>
-                <el-button type="primary" icon="el-icon-circle-plus-outline" plain>上传</el-button>
+                <el-button type="danger" icon="el-icon-circle-close" plain @click="Clearing()">取消</el-button>
+                <el-button type="primary" icon="el-icon-circle-plus-outline" plain @click="Uploading()">上传</el-button>
               </div>
             </el-col>
           </el-row>
@@ -211,7 +210,7 @@ export default {
       this.search = '';
     },
     /**
-     * 写文章的按钮
+     * 上传视频的按钮
      *
      * @author HCY
      * @since 2021/1/22 下午1:06
@@ -244,6 +243,22 @@ export default {
      */
     TableEdit(data){
       console.log(data)
+    },
+    /**
+     * 抽屉内的上传按钮
+     * @author HCY
+     * @since 2021/1/23 下午5:38
+    */
+    Uploading(){
+
+    },
+    /**
+     * 抽屉内的取消按钮
+     * @author HCY
+     * @since 2021/1/23 下午5:40
+    */
+    Clearing(){
+
     },
     /**
      * 删除操作
@@ -282,7 +297,7 @@ export default {
      * @author HCY
      * @since 2021/1/23 上午11:54
      * @param val: 页数
-    */
+     */
     PaginationCurrentChange(val){
       console.log(`当前页: ${val}`);
     },

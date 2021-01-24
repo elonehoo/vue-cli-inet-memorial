@@ -33,8 +33,7 @@ export default {
      * @since 2021/7/17 20:27:40
      */
     login(form){
-      console.log(form.account);
-      console.log(form.cipher);
+      this.$router.push("/Main/Logo")
     }
   }
 }

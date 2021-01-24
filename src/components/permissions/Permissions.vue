@@ -136,7 +136,7 @@ export default {
   },
   methods:{
     /**
-     * 删除按钮的事件
+     * 修改按钮的事件
      *
      * @author HCY
      * @since 2021/1/20 下午4:08

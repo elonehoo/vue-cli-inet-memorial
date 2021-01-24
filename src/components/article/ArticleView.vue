@@ -201,9 +201,23 @@ export default {
         });
       });
     },
+    /**
+     * 修改条目数
+     *
+     * @author HCY
+     * @since 2021/1/23 下午5:28
+     * @param val: 条目数
+    */
     PaginationSizeChange(val){
       console.log(`每页 ${val} 条`);
     },
+    /**
+     * 修改页数
+     *
+     * @author HCY
+     * @since 2021/1/23 下午5:29
+     * @param val: 页数
+    */
     PaginationCurrentChange(val){
       console.log(`当前页: ${val}`);
     }

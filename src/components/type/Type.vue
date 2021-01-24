@@ -171,7 +171,21 @@ export default {
      * @param data:
     */
     handleDelete(data){
-
+      this.$confirm('此操作将删除该类别('+ data.name +'), 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$notify.success({
+          title: '信息',
+          message: '删除成功'
+        });
+      }).catch(() => {
+        this.$notify.info({
+          title: '信息',
+          message: '放弃删除'
+        });
+      });
     },
     /**
      * 修改按钮的操作
