@@ -55,21 +55,14 @@
               label="标题"
               width="800">
               <template slot-scope="scope">
-                <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                <span style="margin-left: 10px">{{ scope.row.headline }}</span>
               </template>
             </el-table-column>
             <el-table-column
-              label="分类"
+              label="类别"
               width="200">
               <template slot-scope="scope">
-                <el-tag type="success">{{ scope.row.typeName }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="标签"
-              width="200">
-              <template slot-scope="scope">
-                <el-tag>{{ scope.row.className }}</el-tag>
+                <el-tag>{{ scope.row.categoryName }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作">
@@ -95,11 +88,11 @@
           <el-pagination
             @size-change="PaginationSizeChange"
             @current-change="PaginationCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[100, 200, 300, 400]"
-            :page-size="100"
+            :current-page="page.pageCurrent"
+            :page-sizes="[10, 20, 30, 40]"
+            :page-size="page.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="400">
+            :total="page.pageTotal">
           </el-pagination>
         </div>
       </el-col>
@@ -114,26 +107,9 @@ export default {
     return{
       search:'',
       typeId:'',
-      selectData:[
-         {id:'1',name:'致敬老兵',typeName:'文章',total:'5'}
-        ,{id:'3',name:'烈士名单',typeName:'文章',total:'7'}
-        ,{id:'4',name:'网上祭奠',typeName:'文章',total:'6'}
-        ,{id:'5',name:'揭秘历史',typeName:'文章',total:'1'}
-        ,{id:'6',name:'国家记忆',typeName:'文章',total:'3'}
-      ],
-      tableData:[
-         {id:'1',name:"文章1",typeName:'文章',className:'致敬老兵'}
-        ,{id:'2',name:"文章2",typeName:'文章',className:'烈士名单'}
-        ,{id:'3',name:"文章3",typeName:'文章',className:'网上祭奠'}
-        ,{id:'4',name:"文章4",typeName:'文章',className:'揭秘历史'}
-        ,{id:'5',name:"文章5",typeName:'文章',className:'国家记忆'}
-        ,{id:'6',name:"文章6",typeName:'文章',className:'致敬老兵'}
-        ,{id:'7',name:"文章7",typeName:'文章',className:'烈士名单'}
-        ,{id:'8',name:"文章8",typeName:'文章',className:'网上祭奠'}
-        ,{id:'9',name:"文章9",typeName:'文章',className:'揭秘历史'}
-        ,{id:'10',name:"文章10",typeName:'文章',className:'国家记忆'}
-      ],
-      currentPage:1
+      selectData:[],
+      tableData:[],
+      page:{},
     }
   },
   methods:{
@@ -146,8 +122,7 @@ export default {
      * @param search: 查询的名字
     */
     Query(typeId,search){
-      console.log(typeId);
-      console.log(search);
+      this.paging(1,this.page.pageSize,typeId,search);
     },
     /**
      * 重置按钮
@@ -158,6 +133,7 @@ export default {
     Clear(){
       this.typeId = '';
       this.search = '';
+      this.paging(1,this.page.pageSize,this.typeId,this.search);
     },
     /**
      * 写文章的按钮
@@ -166,7 +142,7 @@ export default {
      * @since 2021/1/22 下午1:06
     */
     WriteArticle(){
-
+      this.$router.push("ArticleAppend")
     },
     /**
      * 修改按钮
@@ -176,7 +152,8 @@ export default {
      * @param data: 修改的
     */
     TableEdit(data){
-      console.log(data)
+      localStorage.setItem("editId",data.id);
+      this.$router.push("ArticleModify");
     },
     /**
      * 删除操作
@@ -190,10 +167,20 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify.success({
-          title: '消息',
-          message: '删除成功'
-        });
+        let that = this;
+        this.$http.delete('admins/article', {
+          params: {
+            articleId:data.id
+          }
+        }).then(function (response) {
+          if (response.data.status === 200){
+            that.$notify.success({
+              title: '消息',
+              message:response.data.message
+            });
+            that.paging(that.page.pageCurrent,that.page.pageSize,that.typeId,that.search)
+          }
+        })
       }).catch(() => {
         this.$notify.info({
           title: '消息',
@@ -209,7 +196,7 @@ export default {
      * @param val: 条目数
     */
     PaginationSizeChange(val){
-      console.log(`每页 ${val} 条`);
+      this.paging(1,val,this.typeId,this.search);
     },
     /**
      * 修改页数
@@ -219,8 +206,46 @@ export default {
      * @param val: 页数
     */
     PaginationCurrentChange(val){
-      console.log(`当前页: ${val}`);
+      this.paging(val,this.page.pageSize,this.typeId,this.search);
+    },
+    /**
+     * 查看所有的类别
+     * @author HCY
+     * @since 2021/1/30 下午1:34
+    */
+    showTypes(){
+      let that = this;
+      this.$http.get('admins/articleCategory', {
+      }).then(function (response) {
+        that.selectData = response.data.message;
+      })
+    },
+    /**
+     * 这是一个翻页的方法
+     * @author HCY
+     * @since 2021/1/30 下午1:24
+    */
+    paging(current,size,categoryId,name){
+      let that = this;
+      this.$http.get('admins/article', {
+        params: {
+          categoryId:categoryId,
+          current:current,
+          name:name,
+          size:size
+        }
+      }).then(function (response) {
+          that.tableData = response.data.message.information;
+          that.page = response.data.message;
+      })
+    },
+    show(){
+      this.paging(1,10,"","");
+      this.showTypes();
     }
+  },
+  created() {
+    this.show();
   }
 }
 </script>

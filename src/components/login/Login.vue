@@ -33,7 +33,34 @@ export default {
      * @since 2021/7/17 20:27:40
      */
     login(form){
-      this.$router.push("/Main/Logo")
+      //存储this
+      let  that = this;
+      //进行登陆的post请求
+      this.$http.post("users/loginUser",{
+          //设置账号
+          email:form.account,
+          //设置密码
+          password:form.cipher
+      }).then(function (response) {
+        //判断是否登陆成功
+        if (response.data.status === 200){
+          //判断权限是否是admin
+          if (response.data.message.roleName === "admin"){
+            //前端存储token
+            localStorage.setItem("token",response.data.message.token);
+            //弹出提示层
+            that.$message.success(response.data.message.info);
+            //进行路由的转换
+            that.$router.push("/Main/Logo")
+          }else{
+            //权限错误
+            that.$message.info("您没有管理员的权限")
+          }
+        }else {
+          //账号或者密码错误
+          that.$message.info(response.data.message)
+        }
+      });
     }
   }
 }

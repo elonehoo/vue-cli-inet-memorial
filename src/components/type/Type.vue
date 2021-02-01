@@ -13,7 +13,7 @@
             <el-form-item label="类别名称" label-width="80px">
               <el-input
                 placeholder="请输入内容"
-                v-model="form.typeName"
+                v-model="form.name"
                 clearable>
               </el-input>
             </el-form-item>
@@ -93,23 +93,12 @@ export default {
   data(){
     return{
       form:{
-        typeName:''
+         id:''
+        ,name:''
         ,typeId:''
       },
-      items:[
-         {id:'1',name:'红色讲堂'}
-        ,{id:'2',name:'视频特辑'}
-        ,{id:'3',name:'文章'}
-      ],
-      tableData:[
-         {id:'1',name:'致敬老兵',typeName:'文章',total:'5'}
-        ,{id:'2',name:'红色讲堂',typeName:'红色讲堂',total:'4'}
-        ,{id:'3',name:'烈士名单',typeName:'文章',total:'7'}
-        ,{id:'4',name:'网上祭奠',typeName:'文章',total:'6'}
-        ,{id:'5',name:'揭秘历史',typeName:'文章',total:'1'}
-        ,{id:'6',name:'国家记忆',typeName:'文章',total:'3'}
-        ,{id:'7',name:'视频特辑',typeName:'视频特辑',total:'2'}
-      ],
+      items:[],
+      tableData:[],
       titleTest:false
     }
   },
@@ -122,16 +111,33 @@ export default {
      * @param data: 注册的内容
     */
     establish(data){
-      if (this.form.typeName == '' || this.form.typeId == ''){
+      if (this.form.name == '' || this.form.typeId == ''){
         this.$notify.info({
           title: '消息',
           message: '创建失败，内容为空'
         });
       }else{
-        this.$notify.success({
-          title: '消息',
-          message: '创建成功'
-        });
+        let that = this;
+        this.$http.post('admins/category', {
+            name: data.name,
+            type_id:data.typeId
+        })
+          .then(function (response) {
+            console.log(response);
+            if (response.data.status === 200){
+              that.$notify.success({
+                title: '消息',
+                message: response.data.message
+              });
+              that.show();
+              that.form={
+                   id:''
+                  ,name:''
+                  ,typeId:''
+              }
+            }
+          })
+
       }
     },
     /**
@@ -141,7 +147,11 @@ export default {
      * @since 2021/1/21 下午2:11
     */
     cancel(){
-      this.form = {};
+      this.form = {
+        id:''
+        ,name:''
+        ,typeId:''
+      };
     },
     /**
      * 修改按钮的操作
@@ -159,8 +169,8 @@ export default {
       }else {
         this.titleTest = true;
         this.form.id = data.id;
-        this.form.typeName = data.name;
-        this.form.typeId = data.typeName;
+        this.form.name = data.name;
+        this.form.typeId = data.type_id;
       }
     },
     /**
@@ -176,10 +186,22 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify.success({
-          title: '信息',
-          message: '删除成功'
-        });
+        let that = this;
+        this.$http.delete('admins/category', {
+          params: {
+            categoryId: data.id
+          }
+        })
+          .then(function (response) {
+            if (response.data.status === 200){
+              that.$notify.success({
+                title: '信息',
+                message: response.data.message
+              });
+              that.show();
+            }
+          })
+
       }).catch(() => {
         this.$notify.info({
           title: '信息',
@@ -193,12 +215,28 @@ export default {
      * @since 2021/1/21 下午2:25
     */
     modify(data){
-      this.$notify.success({
-        title: '信息',
-        message: '修改成功'
-      });
-      this.form = {};
-      this.titleTest = false;
+      let that = this;
+      this.$http.put('admins/category', {
+          id:data.id,
+          type_id:data.typeId,
+          name:data.name
+      })
+        .then(function (response) {
+          if (response.data.status === 200){
+            that.$notify.success({
+              title: '信息',
+              message: response.data.message,
+            });
+            that.show();
+            that.titleTest = false;
+            that.form = {
+               id:''
+              ,name:''
+              ,typeId:''
+            };
+          }
+          console.log(response);
+        })
     },
     /**
      * 返回按钮的操作
@@ -207,19 +245,37 @@ export default {
      * @since 2021/1/21 下午2:23
     */
     goBack(data){
-      this.$confirm('此操作将放弃修改该类别('+ data.typeName +'), 是否继续?', '提示', {
+      this.$confirm('此操作将放弃修改该类别('+ data.name +'), 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.form = {};
+        this.form = {
+           id:''
+          ,name:''
+          ,typeId:''
+        };
         this.titleTest = false;
         this.$notify.info({
           title: '信息',
           message: '取消修改'
         });
       }).catch(() => {});
+    },
+    show(){
+      let that = this;
+      this.$http.get('admins/category')
+        .then(function (response) {
+          that.tableData = response.data.message;
+        })
+      this.$http.get('admins/type')
+        .then(function (response) {
+          that.items = response.data.message;
+        })
     }
+  },
+  created() {
+    this.show()
   }
 }
 </script>

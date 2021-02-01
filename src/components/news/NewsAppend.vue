@@ -10,7 +10,7 @@
     <el-row :gutter="20" class="top">
       <el-col :span="21" :offset="1">
         <div class="grid-content bg-purple">
-          <mavon-editor @imgAdd="$imgAdd" :toolbars="toolbars" v-model="content" style="height: 700px"></mavon-editor>
+          <mavon-editor  ref="md" @imgAdd="$imgAdd" :toolbars="toolbars" v-model="content" style="height: 700px"></mavon-editor>
         </div>
       </el-col>
     </el-row>
@@ -45,7 +45,7 @@
               <div style="text-align: center">
                 <el-upload
                   class="avatar-uploader"
-                  action="BaseURL"
+                  action="http://localhost:4949/memorial/admins/upload"
                   :show-file-list="false"
                   :on-success="ImagesSuccess">
                   <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -123,14 +123,6 @@ export default {
       content:'',
       dialog:false,
       site:'',
-      selectData:[
-        {id:'1',name:'致敬老兵',typeName:'文章',total:'5'}
-        ,{id:'3',name:'烈士名单',typeName:'文章',total:'7'}
-        ,{id:'4',name:'网上祭奠',typeName:'文章',total:'6'}
-        ,{id:'5',name:'揭秘历史',typeName:'文章',total:'1'}
-        ,{id:'6',name:'国家记忆',typeName:'文章',total:'3'}
-      ],
-      // imageUrl:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
       imageUrl:'',
     }
   },
@@ -182,21 +174,23 @@ export default {
      */
     $imgAdd(pos, $file){
       // 第一步.将图片上传到服务器.
+      let that = this;
       var formdata = new FormData();
-      formdata.append('image', $file);
-      axios({
-        url: 'server url',
+      formdata.append('file', $file);
+      this.$http({
+        url: 'http://localhost:4949/memorial/admins/upload',
         method: 'post',
         data: formdata,
         headers: { 'Content-Type': 'multipart/form-data' },
-      }).then((url) => {
+      }).then((response) => {
         // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
         /**
          * $vm 指为mavonEditor实例，可以通过如下两种方式获取
          * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
          * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
          */
-        $vm.$img2Url(pos, url);
+        var url = response.data.message.url;
+        this.$refs.md.$img2Url(pos, url);
       })
     },
     DialogClose(done) {
@@ -223,7 +217,7 @@ export default {
      * @since 2021/1/22 下午6:54
      */
     ImagesSuccess(res, file){
-
+      this.imageUrl = res.message.url
     },
     /**
      * 抽屉内的清空按钮
@@ -256,7 +250,32 @@ export default {
      * @since 2021/1/22 下午7:02
      */
     OnRelease(){
+      let that = this;
+      this.$http.post('admins/journalism', {
+        content:that.content,
+        headline:that.title,
+        photograph:that.imageUrl,
+        site:that.site
+      }).then(function (response) {
+          console.log(response);
+          if (response.data.status === 200){
+            that.$notify.success({
+              title: '信息',
+              message: response.data.message
+            });
+            that.dialog = false;
+            that.content = '';
+            that.title = '';
+            that.imageUrl = '';
+            that.site = '';
 
+          }else {
+            that.$notify.info({
+              title: '信息',
+              message: response.data.message
+            });
+          }
+      })
     }
   }
 }

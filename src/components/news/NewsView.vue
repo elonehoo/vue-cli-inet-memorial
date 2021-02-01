@@ -42,23 +42,17 @@
                 label="标题"
                 width="800">
                 <template slot-scope="scope">
-                  <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                  <span style="margin-left: 10px">{{ scope.row.headline }}</span>
                 </template>
               </el-table-column>
               <el-table-column
-                label="分类"
+                label="地点"
                 width="200">
                 <template slot-scope="scope">
-                  <el-tag type="success">{{ scope.row.typeName }}</el-tag>
+                  <el-tag type="success">{{ scope.row.site }}</el-tag>
                 </template>
               </el-table-column>
-              <el-table-column
-                label="标签"
-                width="200">
-                <template slot-scope="scope">
-                  <el-tag>{{ scope.row.className }}</el-tag>
-                </template>
-              </el-table-column>
+
               <el-table-column label="操作">
                 <template slot-scope="scope">
                   <el-button
@@ -82,11 +76,11 @@
             <el-pagination
               @size-change="PaginationSizeChange"
               @current-change="PaginationCurrentChange"
-              :current-page="currentPage"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
+              :current-page="page.pageCurrent"
+              :page-sizes="[10, 20, 30, 40]"
+              :page-size="page.pageSize"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
+              :total="page.pageTotal">
             </el-pagination>
           </div>
         </el-col>
@@ -100,19 +94,8 @@ export default {
   data() {
     return {
       search: '',
-      tableData: [
-        {id: '1', name: "文章1", typeName: '文章', className: '新闻资讯'}
-        , {id: '2', name: "文章2", typeName: '文章', className: '新闻资讯'}
-        , {id: '3', name: "文章3", typeName: '文章', className: '新闻资讯'}
-        , {id: '4', name: "文章4", typeName: '文章', className: '新闻资讯'}
-        , {id: '5', name: "文章5", typeName: '文章', className: '新闻资讯'}
-        , {id: '6', name: "文章6", typeName: '文章', className: '新闻资讯'}
-        , {id: '7', name: "文章7", typeName: '文章', className: '新闻资讯'}
-        , {id: '8', name: "文章8", typeName: '文章', className: '新闻资讯'}
-        , {id: '9', name: "文章9", typeName: '文章', className: '新闻资讯'}
-        , {id: '10', name: "文章10", typeName: '文章', className: '新闻资讯'}
-      ],
-      currentPage: 1
+      tableData: [],
+      page: {}
     }
   },
   methods:{
@@ -124,7 +107,7 @@ export default {
      * @param data:
     */
     Query(data){
-
+      this.paging(1,this.page.pageSize,data);
     },
     /**
      * 重置按钮的操作
@@ -133,7 +116,8 @@ export default {
      * @since 2021/1/22 下午9:00
     */
     Clear(){
-
+      this.search = '';
+      this.paging(1,this.page.pageSize,this.search);
     },
     /**
      * 写文章的按钮
@@ -142,7 +126,7 @@ export default {
      * @since 2021/1/22 下午1:06
      */
     WriteArticle(){
-
+      this.$router.push("NewsAppend");
     },
     /**
      * 修改按钮
@@ -152,7 +136,8 @@ export default {
      * @param data: 修改的
      */
     TableEdit(data){
-      console.log(data)
+      localStorage.setItem("newsId",data.id);
+      this.$router.push("NewsModify");
     },
     /**
      * 删除操作
@@ -161,15 +146,31 @@ export default {
      * @param data:
      */
     TableDelete(data){
-      this.$confirm('此操作将永久删除该文章('+ data.name +'), 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该文章('+ data.headline +'), 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify.success({
-          title: '消息',
-          message: '删除成功'
-        });
+        let that = this;
+        this.$http.delete('admins/journalism', {
+          params: {
+            journalismId:data.id
+          }
+        }).then(function (response) {
+          if (response.data.status === 200){
+            that.$notify.success({
+              title: '消息',
+              message: response.data.message
+            });
+          }else {
+            that.$notify.info({
+              title: '消息',
+              message: response.data.message
+            });
+          }
+          that.paging(that.page.pageCurrent,that.page.pageSize,that.search)
+        })
+
       }).catch(() => {
         this.$notify.info({
           title: '消息',
@@ -184,7 +185,7 @@ export default {
      * @param val: 条目数
     */
     PaginationSizeChange(val){
-      console.log(`每页 ${val} 条`);
+      this.paging(1,val,this.search)
     },
     /**
      * 修改页数
@@ -193,8 +194,37 @@ export default {
      * @param val: 页数
     */
     PaginationCurrentChange(val){
-      console.log(`当前页: ${val}`);
+      this.paging(val,this.page.pageSize,this.search)
+    },
+    /**
+     * 分页
+     * @author HCY
+     * @since 2021/1/31 下午1:44
+    */
+    paging(current,size,name){
+      let that = this;
+      this.$http.get('admins/journalism', {
+        params: {
+          current:current,
+          name:name,
+          size:size
+        }
+      }).then(function (response) {
+          that.tableData = response.data.message.information;
+          that.page = response.data.message
+      })
+    },
+    /**
+     * 初始化
+     * @author HCY
+     * @since 2021/1/31 下午1:44
+    */
+    show(){
+      this.paging(1,10,"");
     }
+  },
+  created() {
+    this.show();
   }
 }
 </script>

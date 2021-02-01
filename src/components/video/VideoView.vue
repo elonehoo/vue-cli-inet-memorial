@@ -73,12 +73,19 @@
                 <el-upload
                   class="upload-demo"
                   drag
-                  action="https://jsonplaceholder.typicode.com/posts/"
+                  action="http://localhost:4949/memorial/admins/upload"
                   :on-success="imageSuccess"
                   multiple>
                   <i class="el-icon-upload"></i>
                   <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 </el-upload>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20" class="top">
+            <el-col :span="16" :offset="4">
+              <div class="grid-content bg-purple"  style="text-align: center">
+                <el-input v-model="videoUrl" placeholder="视频链接" :disabled="true">></el-input>
               </div>
             </el-col>
           </el-row>
@@ -105,33 +112,25 @@
               label="标题"
               width="800">
               <template slot-scope="scope">
-                <span style="margin-left: 10px">{{ scope.row.name }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="分类"
-              width="200">
-              <template slot-scope="scope">
-                <el-tag type="success">{{ scope.row.typeName }}</el-tag>
+                <span style="margin-left: 10px">{{ scope.row.headline }}</span>
               </template>
             </el-table-column>
             <el-table-column
               label="标签"
               width="200">
               <template slot-scope="scope">
-                <el-tag>{{ scope.row.className }}</el-tag>
+                <el-tag>{{ scope.row.category_name }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
-                  @click="TableEdit(scope.row)">编辑</el-button>
-                <el-button
-                  size="mini"
                   type="danger"
                   @click="TableDelete(scope.row)">删除</el-button>
               </template>
+
+
             </el-table-column>
           </el-table>
         </div>
@@ -145,11 +144,11 @@
           <el-pagination
             @size-change="PaginationSizeChange"
             @current-change="PaginationCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[100, 200, 300, 400]"
-            :page-size="100"
+            :current-page="page.pageCurrent"
+            :page-sizes="[10, 20, 30, 40]"
+            :page-size="page.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="400">
+            :total="page.pageTotal">
           </el-pagination>
         </div>
       </el-col>
@@ -165,25 +164,14 @@ export default {
       title:'',
       search:'',
       searchTypeId:'',
+      videoUrl:'',
       typeId:'',
-      tableData:[
-        {id:'1',name:"视频1",typeName:'视频',className:'视频特辑'}
-        ,{id:'2',name:"视频2",typeName:'视频',className:'红色讲堂'}
-        ,{id:'3',name:"视频3",typeName:'视频',className:'视频特辑'}
-        ,{id:'4',name:"视频4",typeName:'视频',className:'红色讲堂'}
-        ,{id:'5',name:"视频5",typeName:'视频',className:'视频特辑'}
-        ,{id:'6',name:"视频6",typeName:'视频',className:'红色讲堂'}
-        ,{id:'7',name:"视频7",typeName:'视频',className:'视频特辑'}
-        ,{id:'8',name:"视频8",typeName:'视频',className:'红色讲堂'}
-        ,{id:'9',name:"视频9",typeName:'视频',className:'视频特辑'}
-        ,{id:'10',name:"视频10",typeName:'视频',className:'红色讲堂'}
-      ],
-      selectData:[
-         {id:'1',name:'红色讲堂',typeName:'视频'}
-        ,{id:'2',name:'视频特辑',typeName:'视频'}
-      ],
-      currentPage:1,
+      tableData:[],
+      selectData:[],
+      page:{},
       dialog:false,
+      dialog_two:false,
+      editData:{},
     }
   },
   methods:{
@@ -196,8 +184,7 @@ export default {
      * @param search: 查询的名字
      */
     Query(typeId,search){
-      console.log(typeId);
-      console.log(search);
+      this.paging(1,this.page.pageSize,typeId,search);
     },
     /**
      * 重置按钮
@@ -208,6 +195,7 @@ export default {
     Clear(){
       this.typeId = '';
       this.search = '';
+      this.paging(1,this.page.pageSize,this.typeId,this.search);
     },
     /**
      * 上传视频的按钮
@@ -242,7 +230,8 @@ export default {
      * @param data: 修改的
      */
     TableEdit(data){
-      console.log(data)
+      this.dialog_two = true;
+      this.editData = data;
     },
     /**
      * 抽屉内的上传按钮
@@ -250,7 +239,28 @@ export default {
      * @since 2021/1/23 下午5:38
     */
     Uploading(){
-
+      let that = this;
+      this.$http.post('admins/video', {
+        category_id: that.searchTypeId,
+        headline: that.title,
+        video_url: that.videoUrl,
+      }).then(function (response) {
+          if (response.data.status === 200){
+            that.$notify.success({
+              title: '信息',
+              message: response.data.message
+            });
+            that.searchTypeId = '';
+            that.title = '';
+            that.videoUrl = '';
+            that.paging(that.page.pageCurrent,that.page.pageSize,that.typeId,that.search);
+          }else {
+            that.$notify.info({
+              title: '信息',
+              message: response.data.message
+            });
+          }
+      })
     },
     /**
      * 抽屉内的取消按钮
@@ -267,15 +277,33 @@ export default {
      * @param data:
      */
     TableDelete(data){
-      this.$confirm('此操作将永久删除该视频（' + data.name + '）,是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该视频（' + data.headline + '）,是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify.success({
-          title: '消息',
-          message: '删除成功'
-        });
+        let that = this;
+        this.$http.delete('admins/video', {
+          params: {
+            videoId: data.id
+          }
+        }).then(function (response) {
+            console.log(response);
+            if (response.data.status === 200){
+              that.$notify.success({
+                title: '消息',
+                message: response.data.message
+              });
+            }else {
+              that.$notify.info({
+                title: '消息',
+                message: response.data.message
+              });
+            }
+            that.paging(that.page.pageCurrent,that.page.pageSize,that.typeId,that.search);
+        })
+
+
       }).catch(() => {
         this.$notify.info({
           title: '消息',
@@ -290,7 +318,7 @@ export default {
      * @param val: 修改的条目数
     */
     PaginationSizeChange(val){
-      console.log(`每页 ${val} 条`);
+      this.paging(1,val,this.typeId,this.search);
     },
     /**
      * 修改页数
@@ -299,7 +327,8 @@ export default {
      * @param val: 页数
      */
     PaginationCurrentChange(val){
-      console.log(`当前页: ${val}`);
+      this.paging(val,this.page.pageSize,this.typeId,this.search);
+
     },
     /**
      * 文件上传成功
@@ -310,8 +339,57 @@ export default {
      * @param file:文件的信息
     */
     imageSuccess(response, file,){
-
-    }
+      if (response.status === 200){
+        this.$notify.success({
+          title: '信息',
+          message: response.message.info
+        });
+        this.videoUrl = response.message.url;
+      }
+    },
+    /**
+     * 查看视频类别
+     * @author HCY
+     * @since 2021/1/31 上午11:02
+    */
+    showCategory(){
+      let that = this;
+      this.$http.get('admins/videoCategory')
+      .then(function (response) {
+          that.selectData = response.data.message
+      })
+    },
+    /**
+     * 分页操作
+     * @author HCY
+     * @since 2021/1/31 上午11:02
+    */
+    paging(current,size,categoryId,searchName){
+      let that  = this;
+      this.$http.get('admins/video', {
+        params: {
+          categoryId:categoryId,
+          current:current,
+          name:searchName,
+          size:size
+        }
+      }).then(function (response) {
+          that.tableData = response.data.message.information;
+          that.page = response.data.message;
+      })
+    },
+    /**
+     * 初始化
+     * @author HCY
+     * @since 2021/1/31 上午11:02
+    */
+    show(){
+      this.showCategory();
+      this.paging(1,10,"","");
+    },
+  },
+  created() {
+    this.show();
   }
 }
 </script>

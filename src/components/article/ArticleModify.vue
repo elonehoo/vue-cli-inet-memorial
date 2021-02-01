@@ -3,14 +3,14 @@
     <el-row :gutter="20" class="top">
       <el-col :span="21" :offset="1">
         <div class="grid-content bg-purple">
-          <el-input v-model="title" placeholder="请输入标题"></el-input>
+          <el-input v-model="edit.headline" placeholder="请输入标题"></el-input>
         </div>
       </el-col>
     </el-row>
     <el-row :gutter="20" class="top">
       <el-col :span="21" :offset="1">
         <div class="grid-content bg-purple">
-          <mavon-editor ref="md" @imgAdd="$imgAdd" :toolbars="toolbars" v-model="content" style="height: 700px"></mavon-editor>
+          <mavon-editor ref="md" @imgAdd="$imgAdd" :toolbars="toolbars" v-model="edit.content" style="height: 700px"></mavon-editor>
         </div>
       </el-col>
     </el-row>
@@ -22,7 +22,7 @@
         </div>
 
         <el-drawer
-          title="发布文章"
+          title="修改文章"
           :visible.sync="dialog"
           direction="rtl"
           :before-close="DialogClose">
@@ -31,7 +31,7 @@
             <el-col :span="18" :offset="3">
               <div class="grid-content bg-purple">
                 选择类别：
-                <el-select v-model="typeId" clearable placeholder="请选择">
+                <el-select v-model="edit.category_id" clearable placeholder="请选择">
                   <el-option
                     v-for="item in selectData"
                     :key="item.id"
@@ -52,7 +52,7 @@
                   action="http://localhost:4949/memorial/admins/upload"
                   :show-file-list="false"
                   :on-success="ImagesSuccess">
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <img v-if="edit.photograph" :src="edit.photograph" class="avatar">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
               </div>
@@ -63,7 +63,7 @@
           <el-row :gutter="20">
             <el-col :span="18" :offset="3" style="margin-top: 10px">
               <div style="text-align: center">
-                <el-input v-model="imageUrl" placeholder="请输入图片的URL"></el-input>
+                <el-input v-model="edit.photograph" placeholder="请输入图片的URL"></el-input>
               </div>
             </el-col>
           </el-row>
@@ -73,7 +73,7 @@
             <el-col :span="18" :offset="3" style="margin-top: 10px">
               <div class="grid-content bg-purple" style="text-align: right">
                 <el-button type="danger" @click="OnClear()">清空</el-button>
-                <el-button type="primary" @click="OnRelease()">发布</el-button>
+                <el-button type="primary" @click="OnRelease()">修改</el-button>
               </div>
             </el-col>
           </el-row>
@@ -132,6 +132,12 @@ export default {
       selectData:[],
       // imageUrl:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
       imageUrl:'',
+      edit:{
+        title:'',
+        content:'',
+        typeId:'',
+        imageUrl:''
+      }
     }
   },
   components: {
@@ -252,38 +258,51 @@ export default {
       });
     },
     /**
-     * 抽屉内的发布按钮
+     * 抽屉内的修改按钮
      * @author HCY
      * @since 2021/1/22 下午7:02
     */
     OnRelease(){
       let that = this;
-      this.$http.post('admins/article', {
-        category_id:that.typeId,
-        content:that.content,
-        headline:that.title,
-        photograph:that.imageUrl
+      this.$http.put('admins/article',{
+        id:that.edit.id,
+        category_id:that.edit.category_id,
+        content:that.edit.content,
+        headline:that.edit.headline,
+        photograph:that.edit.photograph
       }).then(function (response) {
+          console.log(response)
           if (response.data.status === 200){
             that.$notify.success({
               title: '消息',
-              message: response.data.message
+              message:response.data.message
             });
-            that.imageUrl = '';
-            that.typeId = '';
-            that.content = '';
-            that.title = '';
-            that.dialog = false;
+            that.$router.push("ArticleView");
+          }else {
+            that.$notify.info({
+              title: '消息',
+              message:response.data.message
+            });
           }
-          console.log(response);
-      });
+      })
     },
-    show(){
+    showCategory(){
       let that = this;
       this.$http.get('admins/articleCategory')
         .then(function (response) {
           that.selectData = response.data.message;
         })
+    },
+    show(){
+      this.showCategory();
+      let that = this;
+      this.$http.get('admins/articleById',{
+        params:{
+          id:localStorage.getItem("editId")
+        }
+      }).then(function (response) {
+          that.edit = response.data.message;
+      })
     },
   },
   created() {

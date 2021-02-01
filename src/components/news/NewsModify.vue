@@ -3,14 +3,14 @@
     <el-row :gutter="20" class="top">
       <el-col :span="21" :offset="1">
         <div class="grid-content bg-purple">
-          <el-input v-model="title" placeholder="请输入标题"></el-input>
+          <el-input v-model="editData.headline" placeholder="请输入标题"></el-input>
         </div>
       </el-col>
     </el-row>
     <el-row :gutter="20" class="top">
       <el-col :span="21" :offset="1">
         <div class="grid-content bg-purple">
-          <mavon-editor ref="md" @imgAdd="$imgAdd" :toolbars="toolbars" v-model="content" style="height: 700px"></mavon-editor>
+          <mavon-editor  ref="md" @imgAdd="$imgAdd" :toolbars="toolbars" v-model="editData.content" style="height: 700px"></mavon-editor>
         </div>
       </el-col>
     </el-row>
@@ -30,15 +30,11 @@
           <el-row :gutter="20">
             <el-col :span="18" :offset="3">
               <div class="grid-content bg-purple">
-                选择类别：
-                <el-select v-model="typeId" clearable placeholder="请选择">
-                  <el-option
-                    v-for="item in selectData"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
+                <el-input
+                  placeholder="请输入新闻地点"
+                  v-model="editData.site"
+                  clearable>
+                </el-input>
               </div>
             </el-col>
           </el-row>
@@ -52,7 +48,7 @@
                   action="http://localhost:4949/memorial/admins/upload"
                   :show-file-list="false"
                   :on-success="ImagesSuccess">
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <img v-if="editData.photograph" :src="editData.photograph" class="avatar">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
               </div>
@@ -63,7 +59,7 @@
           <el-row :gutter="20">
             <el-col :span="18" :offset="3" style="margin-top: 10px">
               <div style="text-align: center">
-                <el-input v-model="imageUrl" placeholder="请输入图片的URL"></el-input>
+                <el-input v-model="editData.photograph" placeholder="请输入图片的URL"></el-input>
               </div>
             </el-col>
           </el-row>
@@ -73,7 +69,7 @@
             <el-col :span="18" :offset="3" style="margin-top: 10px">
               <div class="grid-content bg-purple" style="text-align: right">
                 <el-button type="danger" @click="OnClear()">清空</el-button>
-                <el-button type="primary" @click="OnRelease()">发布</el-button>
+                <el-button type="primary" @click="OnRelease()">修改</el-button>
               </div>
             </el-col>
           </el-row>
@@ -84,13 +80,11 @@
   </div>
 </template>
 
-
-
 <script>
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 export default {
-  name: "ArticleAppend",
+  name: "NewsAppend",
   data(){
     return{
       toolbars: {
@@ -125,13 +119,13 @@ export default {
         subfield: true, // 单双栏模式
         preview: true, // 预览
       },
-      title:'',
-      content:'',
       dialog:false,
-      typeId:'',
-      selectData:[],
-      // imageUrl:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-      imageUrl:'',
+      editData:{
+        headline:'',
+        content:'',
+        site:'',
+        photograph:'',
+      }
     }
   },
   components: {
@@ -143,7 +137,7 @@ export default {
      *
      * @author HCY
      * @since 2021/1/22 下午3:53
-    */
+     */
     Clear(){
       this.$confirm('此操作将清空该文章内容和标题, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -168,7 +162,7 @@ export default {
      *
      * @author HCY
      * @since 2021/1/22 下午3:57
-    */
+     */
     Determine(){
       this.dialog = true
     },
@@ -179,7 +173,7 @@ export default {
      * @since 2021/1/22 下午4:19
      * @param pos: 第几张图片
      * @param $file: 图片的具体信息
-    */
+     */
     $imgAdd(pos, $file){
       // 第一步.将图片上传到服务器.
       let that = this;
@@ -223,17 +217,17 @@ export default {
      * 图片上传成功的钩子
      * @author HCY
      * @since 2021/1/22 下午6:54
-    */
+     */
     ImagesSuccess(res, file){
-      this.imageUrl = res.message.url;
+      this.editData.photograph = res.message.url
     },
     /**
      * 抽屉内的清空按钮
      * @author HCY
      * @since 2021/1/22 下午7:01
-    */
+     */
     OnClear(){
-      this.$confirm('此操作将清空该文章类别和图片, 是否继续?', '提示', {
+      this.$confirm('此操作将清空该新闻的地点和图片, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -243,47 +237,53 @@ export default {
           message: '已经清空成功'
         });
         this.imageUrl = '';
-        this.typeId = '';
+        this.site = '';
       }).catch(() => {
         this.$notify.info({
           title: '消息',
           message: '已取消清空'
         });
       });
+
     },
     /**
-     * 抽屉内的发布按钮
+     * 抽屉内的修改按钮
      * @author HCY
      * @since 2021/1/22 下午7:02
-    */
+     */
     OnRelease(){
       let that = this;
-      this.$http.post('admins/article', {
-        category_id:that.typeId,
-        content:that.content,
-        headline:that.title,
-        photograph:that.imageUrl
+      this.$http.put('admins/journalism', {
+        id:that.editData.id,
+        content:that.editData.content,
+        headline:that.editData.headline,
+        photograph:that.editData.photograph,
+        site:that.editData.site
       }).then(function (response) {
+          console.log(response);
           if (response.data.status === 200){
             that.$notify.success({
               title: '消息',
               message: response.data.message
             });
-            that.imageUrl = '';
-            that.typeId = '';
-            that.content = '';
-            that.title = '';
-            that.dialog = false;
+            that.$router.push("NewsView");
+          }else {
+            that.$notify.info({
+              title: '消息',
+              message: response.data.message
+            });
           }
-          console.log(response);
-      });
+      })
     },
     show(){
       let that = this;
-      this.$http.get('admins/articleCategory')
-        .then(function (response) {
-          that.selectData = response.data.message;
-        })
+      this.$http.get('admins/newById', {
+        params: {
+          id: localStorage.getItem("newsId")
+        }
+      }).then(function (response) {
+          that.editData = response.data.message
+      })
     },
   },
   created() {

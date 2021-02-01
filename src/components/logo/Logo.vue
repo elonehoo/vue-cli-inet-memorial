@@ -97,14 +97,30 @@ export default {
   data(){
     return{
       cardValue:{
-        articleTotal:'1',
-        newsTotal:'2',
-        heroesTotal:'3',
-        classroomTotal:'4',
-        videoTotal:'5',
-        commentsTotal:'6',
+        articleTotal:'',
+        newsTotal:'',
+        heroesTotal:'',
+        classroomTotal:'',
+        videoTotal:'',
+        commentsTotal:'',
       }
     }
+  },
+  methods:{
+    show(){
+      let that = this;
+      var token = localStorage.getItem("token");
+      this.$http.get('admins/logoTotal')
+        .then(function (response) {
+          that.cardValue = response.data.message;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  },
+  created() {
+    this.show();
   }
 }
 </script>

@@ -9,7 +9,7 @@
             label="用户名"
             width="230">
             <template slot-scope="scope">
-              <span>{{ scope.row.nickName }}</span>
+              <span>{{ scope.row.nickname }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -23,7 +23,7 @@
             label="权限名称"
             width="230">
             <template slot-scope="scope">
-              <span>{{ scope.row.role }}</span>
+              <span>{{ scope.row.role === 'users' ? "用户":"管理员" }}</span>
             </template>
           </el-table-column>
           <el-table-column label="修改" width="100">
@@ -42,11 +42,11 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage"
+          :current-page="page.pageCurrent"
           :page-sizes="[10, 20, 30, 40]"
-          :page-size="10"
+          :page-size="page.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="10">
+          :total="page.pageTotal">
         </el-pagination>
       </div>
     </el-col>
@@ -58,79 +58,9 @@ export default {
   name: "permissions",
   data() {
     return {
-      tableData: [{
-        id:'1'
-        ,nickName:'晓寻遥1'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'2'
-        ,nickName:'晓寻遥2'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'3'
-        ,nickName:'晓寻遥3'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'4'
-        ,nickName:'晓寻遥4'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      },{
-        id:'5'
-        ,nickName:'晓寻遥5'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'6'
-        ,nickName:'晓寻遥6'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'7'
-        ,nickName:'晓寻遥7'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'8'
-        ,nickName:'晓寻遥8'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'9'
-        ,nickName:'晓寻遥9'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }, {
-        id:'10'
-        ,nickName:'晓寻遥10'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-        ,role:'学生'
-      }],
+      tableData: [],
       form:[],
-      currentPage: 1,
+      page: {},
       dialogFormVisible:false
     }
   },
@@ -144,16 +74,24 @@ export default {
      * @return null
      */
     TableDelete(id,data){
-      this.$confirm('此操作将该用户（'+ data.nickName  + '）永久升级成为管理员, 是否继续?', '提示', {
+      this.$confirm('此操作将该用户（'+ data.nickname  + '）永久升级成为管理员, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify({
-          title: '信息',
-          message: '已经修改成功',
-          type: 'success'
-        });
+        let that = this;
+        this.$http.put('admins/users', {
+          id: id,
+        }).then(function (response) {
+            that.$notify({
+              title: '信息',
+              message: response.data.message,
+              type: 'success'
+            });
+            if (response.data.status === 200) {
+              that.pageing(that.page.pageCurrent,that.page.pageSize);
+            }
+          })
       }).catch(() => {
         this.$notify.info({
           title: '消息',
@@ -171,7 +109,7 @@ export default {
      * @return null
      */
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.pageing(this.page.pageCurrent,val);
     },
     /**
      * 修改页数的方法
@@ -181,7 +119,7 @@ export default {
      * @return null
      */
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.pageing(val,this.page.pageSize)
     },
     /**
      * 取消修改用户的方法
@@ -210,6 +148,25 @@ export default {
         type: 'success'
       });
     },
+    pageing(current,size){
+      let that = this;
+      // 可选地，上面的请求可以这样做
+      this.$http.get('admins/users', {
+        params: {
+          current:current,
+          size:size
+        }
+      }).then(function (response) {
+          that.tableData = response.data.message.information;
+          that.page = response.data.message;
+        })
+    },
+    show(){
+      this.pageing(1,10);
+    },
+  },
+  created() {
+    this.show();
   }
 }
 </script>

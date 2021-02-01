@@ -7,10 +7,12 @@ import Permissions from "../components/permissions/Permissions";
 import Type from "../components/type/Type";
 import ArticleView from "../components/article/ArticleView";
 import ArticleAppend from "../components/article/ArticleAppend";
+import ArticleModify from "../components/article/ArticleModify";
 import NewsView from "../components/news/NewsView";
 import NewsAppend from "../components/news/NewsAppend";
 import VideoView from "../components/video/VideoView";
 import Logo from "../components/logo/Logo";
+import NewsModify from "../components/news/NewsModify";
 Vue.use(Router)
 
 export default new Router({
@@ -24,8 +26,10 @@ export default new Router({
           ,{path: "Type",component: Type}
           ,{path: "ArticleView",component: ArticleView}
           ,{path: "ArticleAppend",component: ArticleAppend}
+          ,{path: "ArticleModify",component: ArticleModify}
           ,{path: "NewsView",component: NewsView}
           ,{path: "NewsAppend",component: NewsAppend}
+          ,{path: "NewsModify",component: NewsModify}
           ,{path: "VideoView",component: VideoView}
           ,{path: "Logo",component: Logo}
         ]

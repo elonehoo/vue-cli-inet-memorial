@@ -10,7 +10,7 @@
               label="用户名"
               width="180">
               <template slot-scope="scope">
-                <span>{{ scope.row.nickName }}</span>
+                <span>{{ scope.row.nickname }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -40,12 +40,9 @@
                   size="mini"
                   @click="TableEdit(scope.row.id,scope.row)">编辑</el-button>
                 <el-dialog title="编辑个人信息" :before-close="DialogClose" :visible.sync="dialogFormVisible" width="600px">
-                  <el-form :model="form">
+                  <el-form>
                     <el-form-item label="昵称" label-width="60px">
-                      <el-input v-model="form.nickName" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="邮箱" label-width="60px">
-                      <el-input v-model="form.email" autocomplete="off"></el-input>
+                      <el-input v-model="form.nickname" autocomplete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="电话" label-width="60px">
                       <el-input v-model="form.telephone" autocomplete="off"></el-input>
@@ -76,11 +73,11 @@
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page="page.pageCurrent"
             :page-sizes="[10, 20, 30, 40]"
-            :page-size="10"
+            :page-size="page.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="10">
+            :total="page.pageTotal">
           </el-pagination>
         </div>
       </el-col>
@@ -94,70 +91,10 @@ export default {
   name: "User",
   data() {
     return {
-      tableData: [{
-         id:'1'
-        ,nickName:'晓寻遥1'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-         id:'2'
-        ,nickName:'晓寻遥2'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'3'
-        ,nickName:'晓寻遥3'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'4'
-        ,nickName:'晓寻遥4'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      },{
-        id:'5'
-        ,nickName:'晓寻遥5'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'6'
-        ,nickName:'晓寻遥6'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'7'
-        ,nickName:'晓寻遥7'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'8'
-        ,nickName:'晓寻遥8'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'9'
-        ,nickName:'晓寻遥9'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }, {
-        id:'10'
-        ,nickName:'晓寻遥10'
-        ,email:'huchengyea@163.com'
-        ,telephone:'17605818915'
-        ,gmt_create:'2020-12-26 09:55:22'
-      }],
-      form:[],
-      currentPage: 1,
-      dialogFormVisible:false
+      tableData: [],
+      form:{},
+      page: [],
+      dialogFormVisible:false,
     }
   },
   methods:{
@@ -170,7 +107,7 @@ export default {
      * @return null
     */
     TableEdit(id,data){
-      this.form = data
+      this.form = data;
       this.dialogFormVisible = true;
     },
     /**
@@ -182,23 +119,30 @@ export default {
      * @return null
     */
     TableDelete(id,data){
-      this.$confirm('此操作将永久删除该用户（'+ data.nickName  + '）, 是否继续?', '提示', {
+      let that = this;
+      this.$confirm('此操作将永久删除该用户（'+ data.nickname  + '）, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$notify({
-          title: '信息',
-          message: '已经修改成功',
-          type: 'success'
-        });
+        this.$http.delete('admins/users', {
+          params: {
+            userId: id
+          },
+        }).then(function (response) {
+            that.$notify({
+              title: '信息',
+              message: response.data.message,
+              type: 'success'
+            });
+            that.pageing(that.page.pageCurrent,that.page.pageSize)
+          })
       }).catch(() => {
         this.$notify.info({
           title: '消息',
           message: '已取消删除'
         });
       });
-
     },
     /**
      * 修改条目数的方法
@@ -209,7 +153,7 @@ export default {
      * @return null
     */
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.pageing(this.page.pageCurrent,val);
     },
     /**
      * 修改页数的方法
@@ -219,7 +163,7 @@ export default {
      * @return null
     */
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.pageing(val,this.page.pageSize);
     },
     /**
      * 取消修改用户的方法
@@ -229,6 +173,7 @@ export default {
     */
     EditClose(){
       this.dialogFormVisible = false;
+      this.pageing(this.page.pageCurrent,this.page.pageSize)
       this.$notify.info({
         title: '消息',
         message: '取消修改'
@@ -241,12 +186,23 @@ export default {
      * @since 2021/1/20 下午5:22
     */
     EditDetermine(){
-      this.dialogFormVisible = false;
-      this.$notify({
-        title: '信息',
-        message: '修改成功',
-        type: 'success'
-      });
+      let that = this;
+      this.$http.put('admins/user', {
+        id:that.form.id,
+        nickname:that.form.nickname,
+        telephone:that.form.telephone
+      }).then(function (response) {
+          var dates = response.data;
+          if (dates.status === 200){
+            that.dialogFormVisible = false;
+            that.$notify({
+              title: '信息',
+              message: dates.message,
+              type: 'success'
+            });
+          }
+        })
+      that.pageing(that.page.pageCurrent,that.page.pageSize)
     },
     /**
      * 关闭Dialog
@@ -265,7 +221,30 @@ export default {
         })
         .catch(_ => {}
         );
+    },
+    show(){
+      this.pageing(1,10);
+    },
+    pageing(current,size){
+      let that = this;
+      this.$http.get('admins/users',{
+        params:{
+          "current":current,
+          "size":size
+        }
+      })
+        .then(function (response) {
+          var dates = response.data.message
+          that.tableData = dates.information;
+          that.page = dates;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     }
+  },
+  created() {
+    this.show();
   }
 }
 </script>

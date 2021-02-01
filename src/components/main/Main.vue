@@ -23,7 +23,7 @@
                     <span>用户管理</span>
                   </template>
                   <el-menu-item-group>
-                    <el-menu-item index="1-1" route="/Main/User">查看新增用户</el-menu-item>
+                    <el-menu-item index="1-1" route="/Main/User">查看用户</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="2">
@@ -149,8 +149,56 @@ export default {
      * @since 2021/1/21 下午3:26
     */
     logOut(){
-
+      //存储this
+      let that = this;
+      //获取token
+      let token = localStorage.getItem("token");
+      //删除token操作
+      this.$http.delete("users/logOut",
+          {
+            headers:{
+                //token发送
+                "Token":token
+            }
+          })
+          .then(function (response) {
+              //数据优化
+              var dates = response.data;
+              that.$notify.info({
+                title: '消息',
+                message: dates.message
+              });
+              //判断是否成功
+              if (dates.status === 200){
+                //前端移除token
+                localStorage.removeItem("token")
+                //路由转换
+                that.$router.push("/")
+              }
+          });
     }
+  },
+  created() {
+    //获取token
+    let token = localStorage.getItem("token");
+    //存储this
+    let that = this;
+    //判断token是否正确
+    this.$http.get("users/validationToken",{
+      headers:{
+        //提交token
+        "Token":token
+      }
+    }).then(function (response) {
+      var dates = response.data;
+      //token不正确
+      if (dates.status !== 200){
+        //移除token
+        localStorage.removeItem("token")
+        //路由转换
+        that.$router.push("/")
+      }
+    });
   }
 }
 </script>
