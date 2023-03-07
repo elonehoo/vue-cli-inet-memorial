@@ -54,7 +54,7 @@
     "webpack-merge": "5.8.0"
   },
   "engines": {
-    "node": ">= 6.0.0",
+    "node": ">= v18.15.0",
     "npm": ">= 3.0.0"
   },
   "browserslist": [
